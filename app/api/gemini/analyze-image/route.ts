@@ -54,7 +54,10 @@ export async function POST(request: NextRequest) {
       contents: candidate,
     });
 
-    console.log("🎨 Image response:", imageResponse);
+    console.log(
+      "🎨 Image response:",
+      JSON.stringify(imageResponse.candidates, null, 2)
+    );
 
     const imageCandidate = imageResponse.candidates?.[0];
     if (!imageCandidate?.content?.parts) {

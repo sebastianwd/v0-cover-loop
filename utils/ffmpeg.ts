@@ -23,6 +23,31 @@ export const createFFmpeg = async () => {
   return ffmpeg;
 };
 
+const mergeVideoAndAlbumCover = (
+  videoInput: string,
+  albumCoverInput: string,
+  outputFile: string
+) => [
+  "-i",
+  videoInput,
+  "-i",
+  albumCoverInput,
+  "-filter_complex",
+  // Add fade transitions based on known video duration (5.0625s from Fal AI: 81 frames / 16 fps)
+  "[0:v]split=2[a][b];" +
+    "[a]trim=0.1:5.0625,setpts=PTS-STARTPTS,fps=16[end];" +
+    "[b]trim=0:0.1,setpts=PTS-STARTPTS,fps=16[begin];" +
+    "[end][begin]xfade=transition=diagtl:duration=0.5:offset=4.4625[xfaded];" +
+    "[1:v]scale=300:300:force_original_aspect_ratio=decrease[overlay];" +
+    "[xfaded][overlay]overlay=(W-w)/2:(H-h)/2,format=yuv420p",
+  "-t",
+  "4.9625",
+  "-c:a",
+  "copy", // Copy audio without re-encoding
+  "-y", // Overwrite output file
+  outputFile,
+];
+
 export const overlayAlbumCoverOnVideo = async (
   videoUrl: string,
   albumCoverDataUrl: string,
@@ -38,7 +63,6 @@ export const overlayAlbumCoverOnVideo = async (
     const videoData = await fetchFile(videoUrl);
     const albumCoverData = await fetchFile(albumCoverDataUrl);
 
-    // Write files to FFmpeg filesystem
     await ffmpeg.writeFile("input_video.mp4", videoData);
     await ffmpeg.writeFile("album_cover.png", albumCoverData);
 
@@ -50,26 +74,13 @@ export const overlayAlbumCoverOnVideo = async (
         "📐 Processing with audio sync, album cover overlay, and fade transitions..."
       );
 
-      await ffmpeg.exec([
-        "-i",
-        "input_video.mp4",
-        "-i",
-        "album_cover.png",
-        "-filter_complex",
-        // Add fade transitions based on known video duration (5.0625s from Fal AI: 81 frames / 16 fps)
-        "[0:v]split=2[a][b];" +
-          "[a]trim=0.1:5.0625,setpts=PTS-STARTPTS,fps=16[end];" +
-          "[b]trim=0:0.1,setpts=PTS-STARTPTS,fps=16[begin];" +
-          "[end][begin]xfade=transition=diagtl:duration=0.5:offset=4.4625[xfaded];" +
-          "[1:v]scale=300:300:force_original_aspect_ratio=decrease[overlay];" +
-          "[xfaded][overlay]overlay=(W-w)/2:(H-h)/2,format=yuv420p",
-        "-t",
-        "5.0625",
-        "-c:a",
-        "copy", // Copy audio without re-encoding
-        "-y", // Overwrite output file
-        "output_video_temp.mp4",
-      ]);
+      await ffmpeg.exec(
+        mergeVideoAndAlbumCover(
+          "input_video.mp4",
+          "album_cover.png",
+          "output_video_temp.mp4"
+        )
+      );
 
       await ffmpeg.exec([
         "-stream_loop",
@@ -93,26 +104,13 @@ export const overlayAlbumCoverOnVideo = async (
       );
 
       // Just overlay album cover without audio processing
-      await ffmpeg.exec([
-        "-i",
-        "input_video.mp4",
-        "-i",
-        "album_cover.png",
-        "-filter_complex",
-        // Add fade transitions based on known video duration (5.0625s from Fal AI: 81 frames / 16 fps)
-        "[0:v]split=2[a][b];" +
-          "[a]trim=0.1:5.0625,setpts=PTS-STARTPTS,fps=16[end];" +
-          "[b]trim=0:0.1,setpts=PTS-STARTPTS,fps=16[begin];" +
-          "[end][begin]xfade=transition=diagtl:duration=0.5:offset=4.4625[xfaded];" +
-          "[1:v]scale=300:300:force_original_aspect_ratio=decrease[overlay];" +
-          "[xfaded][overlay]overlay=(W-w)/2:(H-h)/2,format=yuv420p",
-        "-t",
-        "5.0625",
-        "-c:a",
-        "copy", // Copy audio without re-encoding
-        "-y", // Overwrite output file
-        "output_video.mp4",
-      ]);
+      await ffmpeg.exec(
+        mergeVideoAndAlbumCover(
+          "input_video.mp4",
+          "album_cover.png",
+          "output_video.mp4"
+        )
+      );
     }
 
     console.log("📤 Reading processed video...");

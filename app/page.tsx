@@ -110,7 +110,7 @@ export default function CoverLoopApp() {
           responseData.imageData,
           responseData.mimeType
         ),
-        albumCoverScale: 0.2,
+        albumCoverScale: 0.4,
       });
 
       setGeneratedBackground(compositeImage);
@@ -151,10 +151,16 @@ export default function CoverLoopApp() {
       const ctx = canvas.getContext("2d");
       const img = new Image();
 
+      const compositeImage = await createCompositeAlbumImage({
+        albumCoverUrl: uploadedImage || "",
+        backgroundUrl: generatedBackground,
+        albumCoverScale: 0,
+      });
+
       await new Promise((resolve, reject) => {
         img.onload = resolve;
         img.onerror = reject;
-        img.src = generatedBackground;
+        img.src = compositeImage;
       });
 
       canvas.width = img.width;
@@ -502,23 +508,6 @@ export default function CoverLoopApp() {
                   <p className="text-sm text-slate-400 text-center">
                     MP3, WAV, or other audio formats
                   </p>
-                  <div className="flex items-center justify-center mt-4 p-3 bg-slate-800/30 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-sm text-slate-300">
-                        Limit to 20 seconds
-                      </span>
-                      <Switch
-                        checked={limitAudioTo20Seconds}
-                        onCheckedChange={setLimitAudioTo20Seconds}
-                        className="data-[state=checked]:bg-purple-600"
-                      />
-                      <span className="text-xs text-slate-400">
-                        {limitAudioTo20Seconds
-                          ? "Enabled for demo"
-                          : "Process full audio"}
-                      </span>
-                    </div>
-                  </div>
                 </div>
                 <input
                   ref={audioInputRef}
@@ -527,7 +516,23 @@ export default function CoverLoopApp() {
                   onChange={handleAudioUpload}
                   className="hidden"
                 />
-
+                <div className="flex items-center justify-center mt-4 p-3 bg-slate-800/30 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-sm text-slate-300">
+                      Limit to 20 seconds
+                    </span>
+                    <Switch
+                      checked={limitAudioTo20Seconds}
+                      onCheckedChange={setLimitAudioTo20Seconds}
+                      className="data-[state=checked]:bg-purple-600"
+                    />
+                    <span className="text-xs text-slate-400">
+                      {limitAudioTo20Seconds
+                        ? "Enabled for demo"
+                        : "Process full audio"}
+                    </span>
+                  </div>
+                </div>
                 {uploadedAudio && (
                   <div className="mt-6">
                     <p className="text-slate-300 mb-4">
@@ -626,13 +631,13 @@ export default function CoverLoopApp() {
 
                   {/* Processing indicators */}
                   {isProcessingVideo && (
-                    <div className="absolute top-4 left-4 bg-blue-900/70 text-white px-4 py-2 rounded-lg text-sm font-medium backdrop-blur-sm flex items-center">
+                    <div className="absolute top-0 left-0 bg-blue-900/70 text-white px-4 py-2 rounded-lg text-sm font-medium backdrop-blur-sm flex items-center">
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Processing with FFmpeg...
                     </div>
                   )}
                   {isProcessingAudio && (
-                    <div className="absolute top-4 left-4 bg-purple-900/70 text-white px-4 py-2 rounded-lg text-sm font-medium backdrop-blur-sm flex items-center">
+                    <div className="absolute top-0 left-0 bg-purple-900/70 text-white px-4 py-2 rounded-lg text-sm font-medium backdrop-blur-sm flex items-center">
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Adding Audio Track...
                     </div>
@@ -668,7 +673,7 @@ export default function CoverLoopApp() {
                   {finalVideo
                     ? "Downloads the complete video with audio track"
                     : processedVideo
-                    ? "Downloads the enhanced video with crisp album cover overlay"
+                    ? "Downloads the enhanced video with album cover overlay"
                     : generatedVideo
                     ? "Downloads the AI-generated video"
                     : generatedBackground
