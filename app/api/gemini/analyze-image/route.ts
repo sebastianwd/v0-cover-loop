@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
           },
         },
         {
-          text: "Describe this image in a way that you extract its overall style, theme, vibe, color palette. This with the objective of creating a cool background for a music visualizer, which means i want to post on youtube the album cover at the center with an added background that relates to it but also can serve as an animated visualizer. it shouldn't include the subject itself or the main element since the album cover already has those details and we want the background to serve more like a visualizer. Respond only a direct description and keep it safe for work.",
+          text: "Describe this image in a way that you extract its overall style, theme, vibe, color palette. This with the objective of creating a cool background for a music visualizer, which means i want to post on youtube the album cover at the center with an added background that relates to it but also can serve as an animated visualizer. it shouldn't include the subject itself or the main element since the album cover already has those details and we want the background to serve more like a visualizer. Respond only a direct description in a single paragraph and keep it safe for work.",
         },
       ],
     });

@@ -26,7 +26,8 @@ export const createFFmpeg = async () => {
 export const overlayAlbumCoverOnVideo = async (
   videoUrl: string,
   albumCoverDataUrl: string,
-  audioDataUrl?: string
+  audioDataUrl?: string,
+  limitAudioTo20Seconds: boolean = true
 ): Promise<string> => {
   console.log("🎬 Starting video overlay process...");
 
@@ -56,7 +57,14 @@ export const overlayAlbumCoverOnVideo = async (
         "album_cover.png",
         "-filter_complex",
         // Add fade transitions based on known video duration (5.0625s from Fal AI: 81 frames / 16 fps)
-        "[0:v]fade=in:0:8,fade=out:st=4.8625:d=0.2[faded_video]; [1:v]scale=iw*0.45:ih*0.45[overlay]; [faded_video][overlay]overlay=(W-w)/2:(H-h)/2",
+        "[0:v]split=2[a][b];" +
+          "[a]trim=0.1:5.0625,setpts=PTS-STARTPTS,fps=16[end];" +
+          "[b]trim=0:0.1,setpts=PTS-STARTPTS,fps=16[begin];" +
+          "[end][begin]xfade=transition=diagtl:duration=0.5:offset=4.4625[xfaded];" +
+          "[1:v]scale=300:300:force_original_aspect_ratio=decrease[overlay];" +
+          "[xfaded][overlay]overlay=(W-w)/2:(H-h)/2,format=yuv420p",
+        "-t",
+        "5.0625",
         "-c:a",
         "copy", // Copy audio without re-encoding
         "-y", // Overwrite output file
@@ -71,8 +79,7 @@ export const overlayAlbumCoverOnVideo = async (
         "-i",
         "input_audio.mp3",
         "-shortest", // Stop when the shortest input (audio or video) ends
-        "-t",
-        "20", // Limit output to 20 seconds
+        ...(limitAudioTo20Seconds ? ["-t", "20"] : []), // Limit output to 20 seconds if enabled
         "-map",
         "0:v:0", // Map the first video stream from the first input (input.mp4)
         "-map",
@@ -93,7 +100,14 @@ export const overlayAlbumCoverOnVideo = async (
         "album_cover.png",
         "-filter_complex",
         // Add fade transitions based on known video duration (5.0625s from Fal AI: 81 frames / 16 fps)
-        "[0:v]fade=in:0:8,fade=out:st=4.5625:d=0.5[faded_video]; [1:v]scale=iw*0.45:ih*0.45[overlay]; [faded_video][overlay]overlay=(W-w)/2:(H-h)/2",
+        "[0:v]split=2[a][b];" +
+          "[a]trim=0.1:5.0625,setpts=PTS-STARTPTS,fps=16[end];" +
+          "[b]trim=0:0.1,setpts=PTS-STARTPTS,fps=16[begin];" +
+          "[end][begin]xfade=transition=diagtl:duration=0.5:offset=4.4625[xfaded];" +
+          "[1:v]scale=300:300:force_original_aspect_ratio=decrease[overlay];" +
+          "[xfaded][overlay]overlay=(W-w)/2:(H-h)/2,format=yuv420p",
+        "-t",
+        "5.0625",
         "-c:a",
         "copy", // Copy audio without re-encoding
         "-y", // Overwrite output file

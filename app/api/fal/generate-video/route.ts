@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     // Default prompt for music visualizer animation
     const prompt =
-      "The album cover rests static at the center, steady and commanding. The background slowly comes alive, pulsing like waves of sound, creating a sense of rhythm and atmosphere. The camera subtly breathes with the scene, moving closer or slightly circling, while the album cover itself doesn't make any movements. The animation flows in a seamless cycle, with the ending aligning perfectly with the beginning, creating a hypnotic, infinite loop that feels natural and continuous, like music made visible. Avoid any dramatic flare-ups, sudden shifts in brightness, or noticeable repeating patterns that would disrupt continuous playback. The goal is a calming, subtly animated visual perfect for a continuously looping screensaver.";
+      "The album cover rests static at the center, steady and commanding. The background slowly comes alive, pulsing like waves of sound, creating a sense of rhythm and atmosphere. The camera subtly breathes with the scene, moving closer or slightly circling, while the album cover itself remains static. The animation flows in a seamless cycle, with the ending aligning perfectly with the beginning, creating a hypnotic, infinite loop that feels natural and continuous, like music made visible. Avoid any dramatic flare-ups, sudden shifts in brightness, or noticeable patterns that would disrupt continuous playback. The goal is a calming, subtly animated visual perfect for a continuously looping screensaver.";
     console.log("📝 Using prompt:", prompt);
 
     const falKey = process.env.FAL_KEY;

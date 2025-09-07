@@ -5,6 +5,7 @@ import type React from "react";
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import {
   Upload,
   Download,
@@ -36,6 +37,7 @@ export default function CoverLoopApp() {
   const [isProcessingAudio, setIsProcessingAudio] = useState(false);
   const [geminiError, setGeminiError] = useState<string | null>(null);
   const [falError, setFalError] = useState<string | null>(null);
+  const [limitAudioTo20Seconds, setLimitAudioTo20Seconds] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
 
@@ -244,7 +246,8 @@ export default function CoverLoopApp() {
       const finalVideoUrl = await overlayAlbumCoverOnVideo(
         processedVideo,
         uploadedImage || "",
-        uploadedAudio
+        uploadedAudio,
+        limitAudioTo20Seconds
       );
       setFinalVideo(finalVideoUrl);
       console.log("✅ Final video with audio completed!");
@@ -289,12 +292,10 @@ export default function CoverLoopApp() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="min-h-screen  text-neutral-100">
       {/* Header */}
-      <header className="text-center py-16 px-4 bg-gradient-to-b from-slate-900 to-slate-950">
-        <h1 className="text-5xl font-bold mb-4 text-balance bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-          CoverLoop
-        </h1>
+      <header className="text-center py-16 px-4 text-primary">
+        <h1 className="text-5xl font-bold mb-4 text-balance">CoverLoop</h1>
         <p className="text-slate-300 text-xl text-balance max-w-2xl mx-auto leading-relaxed">
           Turn your album cover into a living visualizer.
         </p>
@@ -304,7 +305,7 @@ export default function CoverLoopApp() {
       <main className="max-w-2xl mx-auto px-4 pb-16">
         <div className="space-y-8">
           {/* Step 1: Upload */}
-          <Card className="p-8 bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+          <Card className="p-8">
             <div className="text-center">
               <h2 className="text-2xl font-semibold mb-6 text-slate-100">
                 Upload Album Cover
@@ -331,7 +332,7 @@ export default function CoverLoopApp() {
 
           {/* Step 2: Preview */}
           {uploadedImage && (
-            <Card className="p-8 bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+            <Card className="p-8 border-slate-700/50">
               <div className="text-center">
                 <h2 className="text-2xl font-semibold mb-6 text-slate-100">
                   Album Cover Preview
@@ -352,7 +353,7 @@ export default function CoverLoopApp() {
 
           {/* Step 3: Generate Background */}
           {uploadedImage && (
-            <Card className="p-8 bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+            <Card className="p-8 border-slate-700/50">
               <div className="text-center">
                 <h2 className="text-2xl font-semibold mb-6 text-slate-100">
                   Generate Background
@@ -385,7 +386,7 @@ export default function CoverLoopApp() {
 
           {/* Step 4: Background Preview */}
           {showBackground && (
-            <Card className="p-8 bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+            <Card className="p-8 border-slate-700/50">
               <div className="text-center">
                 <h2 className="text-2xl font-semibold mb-6 text-slate-100">
                   Background Preview
@@ -420,7 +421,7 @@ export default function CoverLoopApp() {
 
           {/* Step 5: Animate Background */}
           {showBackground && (
-            <Card className="p-8 bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+            <Card className="p-8 border-slate-700/50">
               <div className="text-center">
                 <h2 className="text-2xl font-semibold mb-6 text-slate-100">
                   Animate Background
@@ -485,7 +486,7 @@ export default function CoverLoopApp() {
 
           {/* Step 6: Audio Upload */}
           {processedVideo && (
-            <Card className="p-8 bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+            <Card className="p-8 border-slate-700/50">
               <div className="text-center">
                 <h2 className="text-2xl font-semibold mb-6 text-slate-100">
                   Add Audio Track
@@ -501,6 +502,23 @@ export default function CoverLoopApp() {
                   <p className="text-sm text-slate-400 text-center">
                     MP3, WAV, or other audio formats
                   </p>
+                  <div className="flex items-center justify-center mt-4 p-3 bg-slate-800/30 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-sm text-slate-300">
+                        Limit to 20 seconds
+                      </span>
+                      <Switch
+                        checked={limitAudioTo20Seconds}
+                        onCheckedChange={setLimitAudioTo20Seconds}
+                        className="data-[state=checked]:bg-purple-600"
+                      />
+                      <span className="text-xs text-slate-400">
+                        {limitAudioTo20Seconds
+                          ? "Enabled for demo"
+                          : "Process full audio"}
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <input
                   ref={audioInputRef}
@@ -540,7 +558,7 @@ export default function CoverLoopApp() {
 
           {/* Step 7: Final Preview with Album Cover Overlay */}
           {showAnimation && (
-            <Card className="p-8 bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+            <Card className="p-8 border-slate-700/50">
               <div className="text-center">
                 <h2 className="text-2xl font-semibold mb-6 text-slate-100">
                   Final Preview
@@ -596,7 +614,7 @@ export default function CoverLoopApp() {
                   )}
 
                   {/* Video indicator */}
-                  <div className="absolute bottom-4 right-4 bg-black/70 text-white px-4 py-2 rounded-lg text-sm font-medium backdrop-blur-sm">
+                  <div className="absolute top-0 right-0 bg-black/70 text-white px-4 py-2 rounded-lg text-sm font-medium backdrop-blur-sm">
                     {finalVideo
                       ? "🎵 Final Video with Audio"
                       : processedVideo
@@ -626,7 +644,7 @@ export default function CoverLoopApp() {
 
           {/* Step 7: Download */}
           {showAnimation && (
-            <Card className="p-8 bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+            <Card className="p-8 border-slate-700/50">
               <div className="text-center">
                 <h2 className="text-2xl font-semibold mb-6 text-slate-100">
                   Download Final Result
