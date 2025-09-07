@@ -460,23 +460,6 @@ export default function CoverLoopApp() {
                       </>
                     )}
                   </Button>
-
-                  {showAnimation && (generatedVideo || falError) && (
-                    <Button
-                      onClick={handleAnimateBackground}
-                      className="bg-blue-600 hover:bg-blue-500 text-white font-medium px-6 py-3 text-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
-                      disabled={isGeneratingVideo || isProcessingVideo}
-                    >
-                      {isGeneratingVideo || isProcessingVideo ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : (
-                        <>
-                          <RefreshCw className="mr-2 h-4 w-4" />
-                          Retry
-                        </>
-                      )}
-                    </Button>
-                  )}
                 </div>
                 {falError && (
                   <div className="mt-4 p-3 bg-red-900/20 border border-red-700/50 rounded-lg">
