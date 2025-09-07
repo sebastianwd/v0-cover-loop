@@ -71,6 +71,21 @@ export default function CoverLoopApp() {
     }
   };
 
+  const handleUseSampleAudio = async () => {
+    try {
+      const response = await fetch("/sample.mp3");
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setUploadedAudio(e.target?.result as string);
+        setFinalVideo(null); // Clear final video when sample audio is used
+      };
+      reader.readAsDataURL(blob);
+    } catch (error) {
+      console.error("Failed to load sample audio:", error);
+    }
+  };
+
   const handleGenerateBackground = async () => {
     if (!uploadedImage) return;
 
@@ -480,17 +495,34 @@ export default function CoverLoopApp() {
                 <h2 className="text-2xl font-semibold mb-6 text-slate-100">
                   Add Audio Track
                 </h2>
-                <div
-                  className="border-2 border-dashed border-slate-600 rounded-xl p-8 cursor-pointer hover:border-purple-400 hover:bg-slate-800/30 transition-all duration-300 group"
-                  onClick={() => audioInputRef.current?.click()}
-                >
-                  <Upload className="mx-auto mb-4 h-12 w-12 text-slate-400 group-hover:text-purple-400 transition-colors" />
-                  <p className="text-slate-200 mb-2 text-center">
-                    Click to upload your audio track
-                  </p>
-                  <p className="text-sm text-slate-400 text-center">
-                    MP3, WAV, or other audio formats
-                  </p>
+                <div className="space-y-4">
+                  <div
+                    className="border-2 border-dashed border-slate-600 rounded-xl p-8 cursor-pointer hover:border-purple-400 hover:bg-slate-800/30 transition-all duration-300 group"
+                    onClick={() => audioInputRef.current?.click()}
+                  >
+                    <Upload className="mx-auto mb-4 h-12 w-12 text-slate-400 group-hover:text-purple-400 transition-colors" />
+                    <p className="text-slate-200 mb-2 text-center">
+                      Click to upload your audio track
+                    </p>
+                    <p className="text-sm text-slate-400 text-center">
+                      MP3, WAV, or other audio formats
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 border-t border-slate-600"></div>
+                    <span className="text-slate-400 text-sm">or</span>
+                    <div className="flex-1 border-t border-slate-600"></div>
+                  </div>
+
+                  <Button
+                    onClick={handleUseSampleAudio}
+                    variant="outline"
+                    className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:border-purple-400 hover:text-purple-300"
+                  >
+                    <Play className="mr-2 h-4 w-4" />
+                    Use Sample Audio
+                  </Button>
                 </div>
                 <input
                   ref={audioInputRef}
